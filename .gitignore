@@ -1,0 +1,38 @@
+# Environment
+.env
+.env.*
+*.env
+
+# Certs (generated locally with mkcert)
+nginx/certs/
+
+# Terraform
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/.terraform.lock.hcl
+terraform/terraform.tfvars
+
+# Load test results
+load-tests/results/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# CLAUDE
+CLAUDE.md
+PROJECT.md
+.claude/
