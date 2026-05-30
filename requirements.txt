@@ -2,3 +2,4 @@ fastapi
 pytest
 flake8
 uvicorn
+black
