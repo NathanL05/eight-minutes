@@ -1,3 +1,8 @@
 fastapi
 pytest
 flake8
+uvicorn
+black
+pydantic
+prometheus-client
+httpx
