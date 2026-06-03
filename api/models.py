@@ -10,7 +10,10 @@ class SubmissionRequest(BaseModel):
 
 class SubmissionResponse(SubmissionRequest):
     id: int
-class Nomination(BaseModel):
-    nominee_name: str
-    nominee_email: str
+class NominationRequest(BaseModel):
+    name: str
+    email: str
     submission_id: int
+
+class NominationResponse(NominationRequest):
+    id: int

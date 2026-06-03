@@ -16,7 +16,7 @@ CREATE TABLE submissions (
 CREATE TABLE nominations (
     id SERIAL PRIMARY KEY,
     submission_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,2
+    name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     FOREIGN KEY (submission_id) REFERENCES submissions(id)
 );
