@@ -8,12 +8,16 @@ class SubmissionRequest(BaseModel):
     challenge: Literal["ice bath", "hot wings", "treadmill"]
     answers: list[str] = Field(..., min_length=8, max_length=8)
 
+
 class SubmissionResponse(SubmissionRequest):
     id: int
+
+
 class NominationRequest(BaseModel):
     name: str
     email: str
     submission_id: int
+
 
 class NominationResponse(NominationRequest):
     id: int
