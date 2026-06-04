@@ -16,9 +16,11 @@ def health_status():
 @app.get("/stats")
 def get_stats(conn=Depends(get_db)):
     cur = conn.cursor()
-    cur.execute(
-        "SELECT c.name, COUNT(s.id) FROM challenges c LEFT JOIN submissions s ON c.id = s.challenge_id GROUP BY c.name"
-    )
+    cur.execute("""
+        SELECT c.name, COUNT(s.id)
+        FROM challenges c LEFT JOIN submissions s ON c.id = s.challenge_id
+        GROUP BY c.name
+        """)
     rows = cur.fetchall()
     stats = {r[0]: r[1] for r in rows}
     return stats

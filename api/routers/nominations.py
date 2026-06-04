@@ -9,7 +9,11 @@ router = APIRouter()
 def create_nomination(nomination: NominationRequest, conn=Depends(get_db)):
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO nominations (submission_id, name, email) VALUES (%s, %s, %s) RETURNING id",
+        """
+        INSERT INTO nominations (submission_id, name, email)
+        VALUES (%s, %s, %s)
+        RETURNING id
+        """,
         (nomination.submission_id, nomination.name, nomination.email),
     )
     conn.commit()

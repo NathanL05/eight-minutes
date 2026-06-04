@@ -11,7 +11,10 @@ def create_submission(submission: SubmissionRequest, conn=Depends(get_db)):
     cur.execute("SELECT id from challenges WHERE name = (%s)", (submission.challenge,))
     challenge_id = cur.fetchone()[0]
     cur.execute(
-        "INSERT INTO submissions (challenge_id, name, answers) VALUES (%s, %s, %s) RETURNING id, challenge_id, name, answers, created_at",
+        """
+        INSERT INTO submissions (challenge_id, name, answers)
+        VALUES (%s, %s, %s)
+        RETURNING id, challenge_id, name, answers, created_at""",
         (challenge_id, submission.name, submission.answers),
     )
     conn.commit()
@@ -27,9 +30,9 @@ def create_submission(submission: SubmissionRequest, conn=Depends(get_db)):
 @router.get("/submissions", response_model=list[SubmissionResponse])
 def get_submission(conn=Depends(get_db)):
     cur = conn.cursor()
-    cur.execute(
-        "SELECT s.id, c.name as challenge, s.name, s.answers FROM submissions s JOIN challenges c ON s.challenge_id = c.id"
-    )
+    cur.execute("""SELECT s.id, c.name as challenge, s.name, s.answers
+        FROM submissions s JOIN challenges c ON s.challenge_id = c.id
+        """)
 
     rows = cur.fetchall()
     submissions = [
