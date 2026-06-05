@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take the Challenge — EightMinute Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { blue: '#1e3a5f', teal: '#0d9488', light: '#f0fdfa' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+
+    <nav class="bg-brand-blue text-white shadow-lg">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="preview_index.html" class="text-2xl font-bold tracking-tight">Eight<span class="text-brand-teal">Minute</span></a>
+            <a href="preview_challenge.html" class="bg-brand-teal hover:bg-teal-600 text-white font-semibold px-5 py-2 rounded-full transition-colors duration-200">
+                Take the Challenge
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-1">
+        <div class="max-w-2xl mx-auto px-4 py-12">
+            <h1 class="text-3xl font-extrabold text-brand-blue mb-2">Take the 8-Minute Challenge</h1>
+            <p class="text-gray-500 mb-8">Complete the form below. All fields marked * are required.</p>
+
+            <!-- NOTE: In the real app this form uses hx-post="/submit/form" — no page reload -->
+            <!-- For this static preview, clicking Submit shows the success state below -->
+            <form id="challenge-form" onsubmit="showSuccess(event)" class="space-y-10">
+
+                <!-- Section 1: Choose challenge -->
+                <fieldset>
+                    <legend class="text-xl font-bold text-brand-blue mb-4">1. Choose Your Challenge *</legend>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                        <label class="cursor-pointer rounded-xl border-2 border-gray-200 hover:border-brand-teal p-5 text-center transition-all duration-150 has-[:checked]:border-brand-teal has-[:checked]:bg-brand-light">
+                            <input type="radio" name="challenge" value="ice bath" required class="sr-only">
+                            <div class="text-4xl mb-2">🧊</div>
+                            <div class="font-semibold text-brand-blue">Ice Bath</div>
+                            <div class="text-xs text-gray-500 mt-1">Sit in ice-cold water for 8 minutes</div>
+                        </label>
+
+                        <label class="cursor-pointer rounded-xl border-2 border-gray-200 hover:border-brand-teal p-5 text-center transition-all duration-150 has-[:checked]:border-brand-teal has-[:checked]:bg-brand-light">
+                            <input type="radio" name="challenge" value="treadmill" required class="sr-only">
+                            <div class="text-4xl mb-2">🏃</div>
+                            <div class="font-semibold text-brand-blue">Treadmill</div>
+                            <div class="text-xs text-gray-500 mt-1">Run as fast as you can for 8 minutes</div>
+                        </label>
+
+                        <label class="cursor-pointer rounded-xl border-2 border-gray-200 hover:border-brand-teal p-5 text-center transition-all duration-150 has-[:checked]:border-brand-teal has-[:checked]:bg-brand-light">
+                            <input type="radio" name="challenge" value="hot wings" required class="sr-only">
+                            <div class="text-4xl mb-2">🌶️</div>
+                            <div class="font-semibold text-brand-blue">Hot Wings</div>
+                            <div class="text-xs text-gray-500 mt-1">Eat the hottest wings you can find</div>
+                        </label>
+
+                    </div>
+                </fieldset>
+
+                <!-- Section 2: 8 questions -->
+                <fieldset>
+                    <legend class="text-xl font-bold text-brand-blue mb-1">2. 8 Questions *</legend>
+                    <p class="text-sm text-gray-500 mb-5">Answer honestly. These reflect on mental health — there are no wrong answers.</p>
+                    <div class="space-y-5" id="questions-container">
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Q1. How are you really doing today, honestly — not the answer you'd give a colleague?</label>
+                            <textarea name="answers" rows="2" required placeholder="Your answer..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Q2. When did you last check in on a friend who might be struggling?</label>
+                            <textarea name="answers" rows="2" required placeholder="Your answer..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Q3. What does 'asking for help' mean to you, and does it feel easy or hard?</label>
+                            <textarea name="answers" rows="2" required placeholder="Your answer..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Q4. What's one thing you do when you feel overwhelmed — does it actually help?</label>
+                            <textarea name="answers" rows="2" required placeholder="Your answer..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Q5. Who in your life would you call at 3am if you needed to talk?</label>
+                            <textarea name="answers" rows="2" required placeholder="Your answer..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Q6. What would you say to a friend who told you they weren't okay?</label>
+                            <textarea name="answers" rows="2" required placeholder="Your answer..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Q7. Have you ever dismissed how you were feeling because you thought others had it worse?</label>
+                            <textarea name="answers" rows="2" required placeholder="Your answer..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Q8. What's one small thing you can commit to for your mental health this week?</label>
+                            <textarea name="answers" rows="2" required placeholder="Your answer..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- Section 3: Your details -->
+                <fieldset>
+                    <legend class="text-xl font-bold text-brand-blue mb-4">3. Your Details (Optional)</legend>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                            <input type="text" name="name" placeholder="First name or alias"
+                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                            <input type="number" name="age" placeholder="e.g. 24" min="13" max="120"
+                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section 4: Nominate -->
+                <fieldset>
+                    <legend class="text-xl font-bold text-brand-blue mb-4">4. Nominate Someone *</legend>
+                    <p class="text-sm text-gray-500 mb-4">They'll get an email — they have 24 hours to accept the challenge.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Their Name *</label>
+                            <input type="text" name="nominee_name" required placeholder="Friend's name"
+                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Their Email *</label>
+                            <input type="email" name="nominee_email" required placeholder="friend@example.com"
+                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="flex items-center gap-4">
+                    <button type="submit"
+                            class="bg-brand-teal hover:bg-teal-600 text-white font-bold px-10 py-3 rounded-full text-lg transition-colors duration-200 shadow">
+                        Submit Challenge
+                    </button>
+                </div>
+
+            </form>
+
+            <!-- Success state (hidden until form submitted) -->
+            <div id="success-state" class="hidden text-center py-16">
+                <div class="text-7xl mb-6">🎉</div>
+                <h2 class="text-3xl font-extrabold text-brand-blue mb-3">Challenge Submitted!</h2>
+                <p class="text-gray-600 text-lg mb-2">You completed the <span id="chosen-challenge" class="font-semibold text-brand-teal"></span> challenge.</p>
+                <p class="text-gray-600 mb-6"><span id="chosen-nominee" class="font-semibold"></span> has been nominated — the chain continues.</p>
+                <p class="text-sm text-gray-400 mb-8">Submission #42</p>
+                <a href="preview_index.html" class="inline-block bg-brand-teal hover:bg-teal-600 text-white font-bold px-8 py-3 rounded-full transition-colors duration-200">
+                    Back to Dashboard
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-brand-blue text-gray-300 text-sm text-center py-6 mt-12">
+        <p>EightMinute &mdash; A mental health awareness challenge.</p>
+        <p class="mt-1 text-gray-400">In partnership with Elephant in the Room charity.</p>
+    </footer>
+
+    <script>
+        // Static preview only — simulates the HTMX swap that happens in the real app
+        function showSuccess(e) {
+            e.preventDefault();
+            const form = document.getElementById('challenge-form');
+            const success = document.getElementById('success-state');
+            const challenge = form.querySelector('input[name="challenge"]:checked')?.value || 'chosen';
+            const nominee = form.querySelector('input[name="nominee_name"]').value || 'Your nominee';
+            document.getElementById('chosen-challenge').textContent = challenge;
+            document.getElementById('chosen-nominee').textContent = nominee;
+            form.classList.add('hidden');
+            success.classList.remove('hidden');
+        }
+    </script>
+
+</body>
+</html>

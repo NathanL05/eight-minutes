@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EightMinute{% endblock %}</title>
+
+    <!-- Tailwind CSS via CDN (Play CDN — dev only, swap for build in prod) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- HTMX — enables server-driven partial page updates without writing JS -->
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#1e3a5f',
+                            teal: '#0d9488',
+                            light: '#f0fdfa',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="bg-brand-blue text-white shadow-lg">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="/" class="text-2xl font-bold tracking-tight">
+                Eight<span class="text-brand-teal">Minute</span>
+            </a>
+            <a href="/challenge"
+               class="bg-brand-teal hover:bg-teal-600 text-white font-semibold px-5 py-2 rounded-full transition-colors duration-200">
+                Take the Challenge
+            </a>
+        </div>
+    </nav>
+
+    <!-- Page content injected here by child templates -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-blue text-gray-300 text-sm text-center py-6 mt-12">
+        <p>EightMinute &mdash; A mental health awareness challenge.</p>
+        <p class="mt-1 text-gray-400">In partnership with Elephant in the Room charity.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EightMinute — Homepage Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { blue: '#1e3a5f', teal: '#0d9488', light: '#f0fdfa' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+
+    <nav class="bg-brand-blue text-white shadow-lg">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="#" class="text-2xl font-bold tracking-tight">Eight<span class="text-brand-teal">Minute</span></a>
+            <a href="preview_challenge.html" class="bg-brand-teal hover:bg-teal-600 text-white font-semibold px-5 py-2 rounded-full transition-colors duration-200">
+                Take the Challenge
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-1">
+
+        <!-- Hero -->
+        <section class="bg-brand-blue text-white py-20 px-4 text-center">
+            <h1 class="text-5xl font-extrabold mb-4 leading-tight">
+                8 Minutes.<br>
+                <span class="text-brand-teal">One Challenge.</span><br>
+                Real Impact.
+            </h1>
+            <p class="text-lg text-gray-300 max-w-xl mx-auto mb-8">
+                Complete one of three 8-minute challenges, answer 8 short questions about mental health,
+                then nominate someone else to keep the chain going.
+            </p>
+            <a href="preview_challenge.html"
+               class="inline-block bg-brand-teal hover:bg-teal-500 text-white text-xl font-bold px-10 py-4 rounded-full transition-colors duration-200 shadow-lg">
+                I Accept the Challenge &rarr;
+            </a>
+        </section>
+
+        <!-- Live stats (mock data — in the real app this polls /partials/stats every 10s) -->
+        <section class="py-12 px-4 bg-white">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-2xl font-bold text-center text-brand-blue mb-2">Live Challenge Counts</h2>
+                <p class="text-center text-xs text-gray-400 mb-8">(Live in real app — polls every 10s via HTMX)</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                    <div class="bg-brand-light rounded-2xl p-8 shadow-sm border border-teal-100">
+                        <div class="text-5xl mb-3">🧊</div>
+                        <div class="text-4xl font-extrabold text-brand-blue">47</div>
+                        <div class="text-gray-500 font-medium mt-1">Ice Bath</div>
+                    </div>
+                    <div class="bg-brand-light rounded-2xl p-8 shadow-sm border border-teal-100">
+                        <div class="text-5xl mb-3">🏃</div>
+                        <div class="text-4xl font-extrabold text-brand-blue">31</div>
+                        <div class="text-gray-500 font-medium mt-1">Treadmill</div>
+                    </div>
+                    <div class="bg-brand-light rounded-2xl p-8 shadow-sm border border-teal-100">
+                        <div class="text-5xl mb-3">🌶️</div>
+                        <div class="text-4xl font-extrabold text-brand-blue">22</div>
+                        <div class="text-gray-500 font-medium mt-1">Hot Wings</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section class="py-12 px-4 bg-brand-light">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold text-center text-brand-blue mb-10">How It Works</h2>
+                <ol class="space-y-6">
+                    <li class="flex gap-4 items-start">
+                        <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">1</span>
+                        <div>
+                            <h3 class="font-semibold text-lg">Pick your 8-minute challenge</h3>
+                            <p class="text-gray-600">Ice bath, treadmill sprint, or hot wings — your choice.</p>
+                        </div>
+                    </li>
+                    <li class="flex gap-4 items-start">
+                        <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">2</span>
+                        <div>
+                            <h3 class="font-semibold text-lg">Answer 8 reflective questions</h3>
+                            <p class="text-gray-600">Short questions about mental health — honest answers only.</p>
+                        </div>
+                    </li>
+                    <li class="flex gap-4 items-start">
+                        <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">3</span>
+                        <div>
+                            <h3 class="font-semibold text-lg">Nominate someone</h3>
+                            <p class="text-gray-600">Tag a friend. They've got 24 hours to accept.</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Recent participants feed (mock data — in real app polls every 5s via HTMX) -->
+        <section class="py-12 px-4 bg-white">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold text-center text-brand-blue mb-2">Recent Participants</h2>
+                <p class="text-center text-xs text-gray-400 mb-8">(Live in real app — polls every 5s via HTMX)</p>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                        <span class="text-2xl">🧊</span>
+                        <div class="flex-1"><span class="font-semibold text-brand-blue">Alex</span> <span class="text-gray-500 text-sm">completed the <span class="font-medium">ice bath</span> challenge</span></div>
+                        <span class="text-xs text-gray-400">2 min ago</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                        <span class="text-2xl">🌶️</span>
+                        <div class="flex-1"><span class="font-semibold text-brand-blue">Jordan</span> <span class="text-gray-500 text-sm">completed the <span class="font-medium">hot wings</span> challenge</span></div>
+                        <span class="text-xs text-gray-400">11 min ago</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                        <span class="text-2xl">🏃</span>
+                        <div class="flex-1"><span class="font-semibold text-brand-blue">Sam</span> <span class="text-gray-500 text-sm">completed the <span class="font-medium">treadmill</span> challenge</span></div>
+                        <span class="text-xs text-gray-400">23 min ago</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                        <span class="text-2xl">🧊</span>
+                        <div class="flex-1"><span class="font-semibold text-brand-blue">Anonymous</span> <span class="text-gray-500 text-sm">completed the <span class="font-medium">ice bath</span> challenge</span></div>
+                        <span class="text-xs text-gray-400">1 hr ago</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-brand-blue text-gray-300 text-sm text-center py-6 mt-12">
+        <p>EightMinute &mdash; A mental health awareness challenge.</p>
+        <p class="mt-1 text-gray-400">In partnership with Elephant in the Room charity.</p>
+    </footer>
+
+</body>
+</html>

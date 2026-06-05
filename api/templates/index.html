@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}EightMinute — Take the Challenge{% endblock %}
+
+{% block content %}
+
+<!-- Hero section -->
+<section class="bg-brand-blue text-white py-20 px-4 text-center">
+    <h1 class="text-5xl font-extrabold mb-4 leading-tight">
+        8 Minutes.<br>
+        <span class="text-brand-teal">One Challenge.</span><br>
+        Real Impact.
+    </h1>
+    <p class="text-lg text-gray-300 max-w-xl mx-auto mb-8">
+        Complete one of three 8-minute challenges, answer 8 short questions about mental health,
+        then nominate someone else to keep the chain going.
+    </p>
+    <a href="/challenge"
+       class="inline-block bg-brand-teal hover:bg-teal-500 text-white text-xl font-bold px-10 py-4 rounded-full transition-colors duration-200 shadow-lg">
+        I Accept the Challenge &rarr;
+    </a>
+</section>
+
+<!-- Live stats counter — HTMX polls this partial every 10 seconds -->
+<!-- hx-get fetches the partial URL, hx-trigger fires on load and every 10s, hx-swap replaces innerHTML -->
+<section class="py-12 px-4 bg-white">
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold text-center text-brand-blue mb-8">Live Challenge Counts</h2>
+        <div
+            id="stats-container"
+            hx-get="/partials/stats"
+            hx-trigger="load, every 10s"
+            hx-swap="innerHTML"
+            class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+            <!-- Populated by /partials/stats -->
+            <div class="text-gray-400 col-span-3 py-4">Loading stats...</div>
+        </div>
+    </div>
+</section>
+
+<!-- How it works -->
+<section class="py-12 px-4 bg-brand-light">
+    <div class="max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold text-center text-brand-blue mb-10">How It Works</h2>
+        <ol class="space-y-6">
+            <li class="flex gap-4 items-start">
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">1</span>
+                <div>
+                    <h3 class="font-semibold text-lg">Pick your 8-minute challenge</h3>
+                    <p class="text-gray-600">Ice bath, treadmill sprint, or hot wings — your choice.</p>
+                </div>
+            </li>
+            <li class="flex gap-4 items-start">
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">2</span>
+                <div>
+                    <h3 class="font-semibold text-lg">Answer 8 reflective questions</h3>
+                    <p class="text-gray-600">Short questions about mental health — honest answers only.</p>
+                </div>
+            </li>
+            <li class="flex gap-4 items-start">
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">3</span>
+                <div>
+                    <h3 class="font-semibold text-lg">Nominate someone</h3>
+                    <p class="text-gray-600">Tag a friend. They've got 24 hours to accept.</p>
+                </div>
+            </li>
+        </ol>
+    </div>
+</section>
+
+<!-- Recent participants feed — HTMX polls every 5 seconds -->
+<section class="py-12 px-4 bg-white">
+    <div class="max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold text-center text-brand-blue mb-8">Recent Participants</h2>
+        <div
+            id="feed-container"
+            hx-get="/partials/feed"
+            hx-trigger="load, every 5s"
+            hx-swap="innerHTML"
+            class="space-y-3">
+            <!-- Populated by /partials/feed -->
+            <div class="text-gray-400 text-center py-4">Loading feed...</div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
