@@ -36,7 +36,7 @@ def get_nominations(conn=Depends(get_db)):
 
     rows = cur.fetchall()
     nominations = [
-        NominationResponse(id=row[0], name=row[1], email=row[2], submission_id=row[3])
-        for row in rows
+        NominationResponse(id=r[0], name=r[1], email=r[2], submission_id=r[3])
+        for r in rows
     ]
     return nominations

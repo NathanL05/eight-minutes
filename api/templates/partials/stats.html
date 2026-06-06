@@ -1,0 +1,20 @@
+{#
+  Partial returned by GET /partials/stats
+  HTMX swaps this into #stats-container on the homepage every 10s.
+  `stats` is a dict: {"ice bath": 12, "treadmill": 8, "hot wings": 5}
+#}
+
+{% set challenge_meta = {
+    "ice bath":   {"emoji": "🧊", "label": "Ice Bath"},
+    "treadmill":  {"emoji": "🏃", "label": "Treadmill"},
+    "hot wings":  {"emoji": "🌶️", "label": "Hot Wings"},
+} %}
+
+{% for name, count in stats.items() %}
+{% set meta = challenge_meta.get(name, {"emoji": "❓", "label": name}) %}
+<div class="bg-brand-light rounded-2xl p-8 shadow-sm border border-teal-100">
+    <div class="text-5xl mb-3">{{ meta.emoji }}</div>
+    <div class="text-4xl font-extrabold text-brand-blue">{{ count }}</div>
+    <div class="text-gray-500 font-medium mt-1">{{ meta.label }}</div>
+</div>
+{% endfor %}

@@ -1,0 +1,28 @@
+{#
+  Partial returned by GET /partials/feed
+  HTMX swaps this into #feed-container on the homepage every 5s.
+  `submissions` is a list of dicts:
+    [{"name": "Alex", "challenge": "ice bath", "created_at": "2026-06-05 14:23"}, ...]
+  Most recent first, limited to ~10 entries.
+#}
+
+{% set challenge_emoji = {"ice bath": "🧊", "treadmill": "🏃", "hot wings": "🌶️"} %}
+
+{% if submissions %}
+    {% for s in submissions %}
+    <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+        <span class="text-2xl">{{ challenge_emoji.get(s.challenge, "❓") }}</span>
+        <div class="flex-1 min-w-0">
+            <span class="font-semibold text-brand-blue">
+                {{ s.name if s.name else "Anonymous" }}
+            </span>
+            <span class="text-gray-500 text-sm"> completed the
+                <span class="font-medium">{{ s.challenge }}</span> challenge
+            </span>
+        </div>
+        <span class="text-xs text-gray-400 flex-shrink-0">{{ s.created_at }}</span>
+    </div>
+    {% endfor %}
+{% else %}
+    <p class="text-center text-gray-400 py-6">No submissions yet — be the first!</p>
+{% endif %}

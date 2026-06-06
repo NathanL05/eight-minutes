@@ -7,3 +7,5 @@ pydantic
 prometheus-client
 httpx
 psycopg2-binary
+jinja2
+python-multipart
