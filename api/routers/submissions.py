@@ -30,14 +30,16 @@ def create_submission(submission: SubmissionRequest, conn=Depends(get_db)):
 @router.get("/submissions", response_model=list[SubmissionResponse])
 def get_submission(conn=Depends(get_db)):
     cur = conn.cursor()
-    cur.execute("""SELECT s.id, c.name as challenge, s.name, s.answers
+    cur.execute(
+        """SELECT s.id, c.name as challenge, s.name, s.answers
         FROM submissions s JOIN challenges c ON s.challenge_id = c.id
-        """)
+        """
+    )
 
     rows = cur.fetchall()
     submissions = [
-        SubmissionResponse(id=row[0], challenge=row[1], name=row[2], answers=row[3])
-        for row in rows
+        SubmissionResponse(id=r[0], challenge=r[1], name=r[2], answers=r[3])
+        for r in rows
     ]
 
     return submissions
