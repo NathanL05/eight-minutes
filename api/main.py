@@ -18,13 +18,11 @@ def health_status():
 @app.get("/stats")
 def get_stats(conn=Depends(get_db)):
     cur = conn.cursor()
-    cur.execute(
-        """
+    cur.execute("""
         SELECT c.name, COUNT(s.id)
         FROM challenges c LEFT JOIN submissions s ON c.id = s.challenge_id
         GROUP BY c.name
-        """
-    )
+        """)
     rows = cur.fetchall()
     stats = {r[0]: r[1] for r in rows}
     return stats
@@ -33,13 +31,11 @@ def get_stats(conn=Depends(get_db)):
 @app.get("/partials/stats")
 def get_partial_stats(request: Request, conn=Depends(get_db)):
     cur = conn.cursor()
-    cur.execute(
-        """
+    cur.execute("""
         SELECT c.name, COUNT(s.id)
         FROM challenges c LEFT JOIN submissions s ON c.id = s.challenge_id
         GROUP BY c.name
-        """
-    )
+        """)
     rows = cur.fetchall()
     stats = {r[0]: r[1] for r in rows}
     return templates.TemplateResponse(
@@ -50,14 +46,12 @@ def get_partial_stats(request: Request, conn=Depends(get_db)):
 @app.get("/partials/feed")
 def get_partial_feed(request: Request, conn=Depends(get_db)):
     cur = conn.cursor()
-    cur.execute(
-        """
+    cur.execute("""
         SELECT s.name, c.name, s.created_at
         FROM submissions s LEFT JOIN challenges c ON s.challenge_id = c.id
         ORDER BY s.created_at DESC
         LIMIT 10
-        """
-    )
+        """)
     rows = cur.fetchall()
     submissions = [{"name": r[0], "challenge": r[1], "created_at": r[2]} for r in rows]
     return templates.TemplateResponse(

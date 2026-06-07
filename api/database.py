@@ -1,5 +1,6 @@
 import os
-from psycopg2.pool import SimpleConnectionPool
+import threading
+from psycopg2.pool import ThreadedConnectionPool
 
 dsn = (
     f"host={os.environ.get('POSTGRES_HOST', 'localhost')} "
@@ -8,15 +9,22 @@ dsn = (
     f"password={os.environ.get('POSTGRES_PASSWORD')} "
 )
 tcp = None
+_tcp_lock = threading.Lock()
 
 
-def get_db():
+def _get_pool():
     global tcp
 
     if tcp is None:
-        tcp = SimpleConnectionPool(1, 10, dsn)
+        with _tcp_lock:
+            if tcp is None:
+                tcp = ThreadedConnectionPool(1, 10, dsn)
 
-    conn = tcp.getconn()
+    return tcp
+
+
+def get_db():
+    conn = _get_pool().getconn()
     try:
         yield conn
     finally:
