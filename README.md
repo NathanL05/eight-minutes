@@ -60,6 +60,17 @@ make chaos-db  # kill postgres, observe recovery
 make chaos-api # kill api, observe recovery
 ```
 
+## How to Share (Cloudflare Tunnel)
+
+Expose the running stack on a public `https://<random>.trycloudflare.com` URL — no Cloudflare account or domain needed. Great for sharing a live demo with others.
+
+```bash
+docker compose up -d                    # start the stack (api on :8000)
+docker compose logs -f cloudflared      # watch for the generated URL
+```
+
+Look for a line like `https://something-random.trycloudflare.com` in the logs — that's your shareable link. The URL changes each time the `cloudflared` container restarts (quick tunnels are ephemeral). Stop sharing with `docker compose stop cloudflared`.
+
 ## How to Deploy (AWS)
 
 ```bash

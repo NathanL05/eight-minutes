@@ -1,0 +1,16 @@
+{#
+  Partial returned by GET /partials/feed?more=1&offset=N (older pages).
+  Appended in place of the "Load more" button (hx-swap="outerHTML"): the cards land where
+  the button was, followed by a fresh button for the next page — until none remain.
+#}
+{% include "partials/feed_cards.html" %}
+
+{% if has_more %}
+<button id="load-more"
+        hx-get="/partials/feed?more=1&offset={{ next_offset }}&limit={{ limit }}"
+        hx-target="#load-more"
+        hx-swap="outerHTML"
+        class="mx-auto block text-brand-teal font-semibold text-sm px-6 py-2.5 rounded-full border border-brand-teal/30 hover:bg-brand-light transition-colors">
+    Load more participants
+</button>
+{% endif %}

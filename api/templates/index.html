@@ -3,28 +3,35 @@
 
 {% block content %}
 
-<!-- Hero section -->
-<section class="bg-brand-blue text-white py-20 px-4 text-center">
+<!-- Hero section — with a literal "elephant in the room" watermark behind the content -->
+<section class="relative overflow-hidden bg-brand-blue text-white py-20 px-4 text-center">
+    <!-- Faint background elephant: the elephant in the room. -->
+    <span class="pointer-events-none select-none absolute -right-8 -bottom-10 text-[16rem] leading-none opacity-5">🐘</span>
+
+    <div class="relative">
+    <img src="/static/logo.webp" alt="Elephant in the Room — Let's talk"
+         class="w-72 sm:w-96 md:w-[34rem] mx-auto mb-8 animate-float">
     <h1 class="text-5xl font-extrabold mb-4 leading-tight">
         8 Minutes.<br>
-        <span class="text-brand-teal">One Challenge.</span><br>
+        <span class="text-brand-amber">One Challenge.</span><br>
         Real Impact.
     </h1>
-    <p class="text-lg text-gray-300 max-w-xl mx-auto mb-8">
+    <p class="text-lg text-white/90 max-w-xl mx-auto mb-8">
         Complete one of three 8-minute challenges, answer 8 short questions about mental health,
         then nominate someone else to keep the chain going.
     </p>
     <a href="/challenge"
-       class="inline-block bg-brand-teal hover:bg-teal-500 text-white text-xl font-bold px-10 py-4 rounded-full transition-colors duration-200 shadow-lg">
+       class="inline-block bg-brand-coral hover:bg-brand-gold text-white text-xl font-bold px-10 py-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
         I Accept the Challenge &rarr;
     </a>
+    </div>
 </section>
 
 <!-- Live stats counter — HTMX polls this partial every 10 seconds -->
 <!-- hx-get fetches the partial URL, hx-trigger fires on load and every 10s, hx-swap replaces innerHTML -->
 <section class="py-12 px-4 bg-white">
     <div class="max-w-5xl mx-auto">
-        <h2 class="text-2xl font-bold text-center text-brand-blue mb-8">Live Challenge Counts</h2>
+        <h2 class="text-2xl font-bold text-center text-brand-navy mb-8">Live Challenge Counts</h2>
         <div
             id="stats-container"
             hx-get="/partials/stats"
@@ -37,27 +44,42 @@
     </div>
 </section>
 
-<!-- How it works -->
-<section class="py-12 px-4 bg-brand-light">
+<!-- Cumulative growth chart — "watch the movement grow". -->
+<!-- Pulls /stats/timeseries and refreshes every 10s (see script at bottom). -->
+<section class="py-12 px-4 bg-brand-blue">
     <div class="max-w-3xl mx-auto">
-        <h2 class="text-2xl font-bold text-center text-brand-blue mb-10">How It Works</h2>
+        <div class="flex items-center justify-center gap-2 mb-2">
+            <h2 class="text-2xl font-bold text-center text-white">The Movement is Growing</h2>
+        </div>
+        <p class="text-center text-white/90 mb-8">Every line tells a story — total people who've taken the challenge.</p>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <canvas id="growth-chart" height="120"></canvas>
+            <p id="growth-empty" class="hidden text-center text-gray-400 py-10">No participants yet — be the first to start the chain!</p>
+        </div>
+    </div>
+</section>
+
+<!-- How it works -->
+<section class="py-12 px-4 bg-white">
+    <div class="max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold text-center text-brand-navy mb-10">How It Works</h2>
         <ol class="space-y-6">
             <li class="flex gap-4 items-start">
-                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">1</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-navy text-white font-bold flex items-center justify-center text-lg">1</span>
                 <div>
                     <h3 class="font-semibold text-lg">Pick your 8-minute challenge</h3>
                     <p class="text-gray-600">Ice bath, treadmill sprint, or hot wings — your choice.</p>
                 </div>
             </li>
             <li class="flex gap-4 items-start">
-                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">2</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-navy text-white font-bold flex items-center justify-center text-lg">2</span>
                 <div>
                     <h3 class="font-semibold text-lg">Answer 8 reflective questions</h3>
                     <p class="text-gray-600">Short questions about mental health — honest answers only.</p>
                 </div>
             </li>
             <li class="flex gap-4 items-start">
-                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-teal text-white font-bold flex items-center justify-center text-lg">3</span>
+                <span class="flex-shrink-0 w-9 h-9 rounded-full bg-brand-navy text-white font-bold flex items-center justify-center text-lg">3</span>
                 <div>
                     <h3 class="font-semibold text-lg">Nominate someone</h3>
                     <p class="text-gray-600">Tag a friend. They've got 24 hours to accept.</p>
@@ -67,20 +89,113 @@
     </div>
 </section>
 
-<!-- Recent participants feed — HTMX polls every 5 seconds -->
-<section class="py-12 px-4 bg-white">
+<!-- Recent participants feed — interactive (likes + comments). -->
+<!-- Polls every 10s and uses idiomorph "morph" so the refresh preserves in-progress -->
+<!-- typing, focus, and scroll position instead of wiping the whole list. -->
+<section class="py-12 px-4 bg-brand-light">
     <div class="max-w-3xl mx-auto">
-        <h2 class="text-2xl font-bold text-center text-brand-blue mb-8">Recent Participants</h2>
+        <div class="flex items-center justify-center gap-2 mb-8">
+            <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-teal opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-teal"></span>
+            </span>
+            <h2 class="text-2xl font-bold text-center text-brand-navy">Recent Participants</h2>
+        </div>
+        <!-- Live: newest page, morph-polled every 10s so it stays current without clobbering input. -->
         <div
             id="feed-container"
-            hx-get="/partials/feed"
-            hx-trigger="load, every 5s"
-            hx-swap="innerHTML"
-            class="space-y-3">
+            hx-get="/partials/feed?limit={{ page_size }}"
+            hx-trigger="load, every 10s"
+            hx-ext="morph"
+            hx-swap="morph:innerHTML"
+            class="space-y-4">
             <!-- Populated by /partials/feed -->
             <div class="text-gray-400 text-center py-4">Loading feed...</div>
         </div>
+
+        <!-- Older participants load on demand (cursor pagination), appended below the live page. -->
+        {% if show_load_more %}
+        <div id="feed-older" class="space-y-4 mt-4">
+            <button id="load-more"
+                    hx-get="/partials/feed?more=1&offset={{ page_size }}&limit={{ page_size }}"
+                    hx-target="#load-more"
+                    hx-swap="outerHTML"
+                    class="mx-auto block text-brand-teal font-semibold text-sm px-6 py-2.5 rounded-full border border-brand-teal/30 hover:bg-brand-light transition-colors">
+                Load more participants
+            </button>
+        </div>
+        {% endif %}
     </div>
 </section>
+
+<!-- Live growth chart: fetch the cumulative timeseries and (re)render every 10s. -->
+<script>
+(function () {
+    let chart;
+
+    async function loadGrowth() {
+        const canvas = document.getElementById('growth-chart');
+        const empty = document.getElementById('growth-empty');
+        if (!canvas) return;
+
+        let series;
+        try {
+            const res = await fetch('/stats/timeseries');
+            series = await res.json();
+        } catch (e) { return; }
+
+        if (!series.data || series.data.length === 0) {
+            canvas.classList.add('hidden');
+            if (empty) empty.classList.remove('hidden');
+            return;
+        }
+        canvas.classList.remove('hidden');
+        if (empty) empty.classList.add('hidden');
+
+        if (chart) {
+            chart.data.labels = series.labels;
+            chart.data.datasets[0].data = series.data;
+            chart.update();
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        const fill = ctx.createLinearGradient(0, 0, 0, 240);
+        fill.addColorStop(0, 'rgba(28, 173, 228, 0.30)');
+        fill.addColorStop(1, 'rgba(28, 173, 228, 0.00)');
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: series.labels,
+                datasets: [{
+                    label: 'Total participants',
+                    data: series.data,
+                    borderColor: '#1cade4',
+                    backgroundColor: fill,
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#1cade4',
+                    pointHoverRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false }, tooltip: { intersect: false, mode: 'index' } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } }
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadGrowth);
+    setInterval(loadGrowth, 10000);
+})();
+</script>
 
 {% endblock %}

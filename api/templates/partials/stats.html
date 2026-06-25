@@ -5,16 +5,16 @@
 #}
 
 {% set challenge_meta = {
-    "ice bath":   {"emoji": "🧊", "label": "Ice Bath"},
-    "treadmill":  {"emoji": "🏃", "label": "Treadmill"},
-    "hot wings":  {"emoji": "🌶️", "label": "Hot Wings"},
+    "ice bath":   {"emoji": "🧊", "label": "Ice Bath",  "num": "text-sky-600",   "bg": "bg-sky-50",   "ring": "border-sky-100"},
+    "treadmill":  {"emoji": "🏃", "label": "Treadmill", "num": "text-amber-600", "bg": "bg-amber-50", "ring": "border-amber-100"},
+    "hot wings":  {"emoji": "🌶️", "label": "Hot Wings", "num": "text-red-600",   "bg": "bg-red-50",   "ring": "border-red-100"},
 } %}
 
 {% for name, count in stats.items() %}
-{% set meta = challenge_meta.get(name, {"emoji": "❓", "label": name}) %}
-<div class="bg-brand-light rounded-2xl p-8 shadow-sm border border-teal-100">
+{% set meta = challenge_meta.get(name, {"emoji": "❓", "label": name, "num": "text-brand-navy", "bg": "bg-gray-50", "ring": "border-gray-100"}) %}
+<div class="{{ meta.bg }} rounded-2xl p-8 shadow-sm border {{ meta.ring }} hover:shadow-md transition-shadow">
     <div class="text-5xl mb-3">{{ meta.emoji }}</div>
-    <div class="text-4xl font-extrabold text-brand-blue">{{ count }}</div>
+    <div class="text-4xl font-extrabold {{ meta.num }} tabular-nums">{{ count }}</div>
     <div class="text-gray-500 font-medium mt-1">{{ meta.label }}</div>
 </div>
 {% endfor %}

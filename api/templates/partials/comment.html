@@ -1,0 +1,17 @@
+{#
+  A single comment row.
+  Rendered inline by feed.html and returned standalone (appended) by POST .../comment.
+  Context: comment = {"author", "body", "created_label"}
+#}
+<div class="flex items-start gap-2 text-sm animate-fadein">
+    <div class="w-6 h-6 rounded-full bg-brand-light text-brand-teal flex items-center justify-center text-xs font-bold flex-shrink-0">
+        {{ (comment.author[0] | upper) if comment.author else "?" }}
+    </div>
+    <div class="bg-gray-100 rounded-2xl px-3 py-1.5 flex-1 min-w-0">
+        <span class="font-semibold text-brand-navy">{{ comment.author }}</span>
+        <span class="text-gray-700 break-words">{{ comment.body }}</span>
+        {% if comment.created_label %}
+        <span class="block text-[11px] text-gray-400 mt-0.5">{{ comment.created_label }}</span>
+        {% endif %}
+    </div>
+</div>

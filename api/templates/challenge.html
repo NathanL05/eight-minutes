@@ -4,7 +4,9 @@
 {% block content %}
 
 <div class="max-w-2xl mx-auto px-4 py-12">
-    <h1 class="text-3xl font-extrabold text-brand-blue mb-2">Take the 8-Minute Challenge</h1>
+    <h1 class="text-3xl font-extrabold text-brand-navy mb-2">
+        <span class="animate-float inline-block">🐘</span> Take the 8-Minute Challenge
+    </h1>
     <p class="text-gray-500 mb-8">Complete the form below. All fields marked * are required.</p>
 
     <!--
@@ -23,112 +25,136 @@
 
         <!-- Section 1: Choose your challenge -->
         <fieldset>
-            <legend class="text-xl font-bold text-brand-blue mb-4">1. Choose Your Challenge *</legend>
+            <legend class="text-xl font-bold text-brand-navy mb-4">1. Choose Your Challenge *</legend>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-                <!-- Each card is a styled radio button. JS toggling handles the selected ring. -->
+                <!-- Each card is a styled radio button. has-[:checked] handles the selected ring. -->
                 <label class="challenge-card cursor-pointer rounded-xl border-2 border-gray-200 hover:border-brand-teal p-5 text-center transition-all duration-150 has-[:checked]:border-brand-teal has-[:checked]:bg-brand-light">
                     <input type="radio" name="challenge" value="ice bath" required class="sr-only">
                     <div class="text-4xl mb-2">🧊</div>
-                    <div class="font-semibold text-brand-blue">Ice Bath</div>
+                    <div class="font-semibold text-brand-navy">Ice Bath</div>
                     <div class="text-xs text-gray-500 mt-1">Sit in ice-cold water for 8 minutes</div>
                 </label>
 
                 <label class="challenge-card cursor-pointer rounded-xl border-2 border-gray-200 hover:border-brand-teal p-5 text-center transition-all duration-150 has-[:checked]:border-brand-teal has-[:checked]:bg-brand-light">
                     <input type="radio" name="challenge" value="treadmill" required class="sr-only">
                     <div class="text-4xl mb-2">🏃</div>
-                    <div class="font-semibold text-brand-blue">Treadmill</div>
+                    <div class="font-semibold text-brand-navy">Treadmill</div>
                     <div class="text-xs text-gray-500 mt-1">Run as fast as you can for 8 minutes</div>
                 </label>
 
                 <label class="challenge-card cursor-pointer rounded-xl border-2 border-gray-200 hover:border-brand-teal p-5 text-center transition-all duration-150 has-[:checked]:border-brand-teal has-[:checked]:bg-brand-light">
                     <input type="radio" name="challenge" value="hot wings" required class="sr-only">
                     <div class="text-4xl mb-2">🌶️</div>
-                    <div class="font-semibold text-brand-blue">Hot Wings</div>
+                    <div class="font-semibold text-brand-navy">Hot Wings</div>
                     <div class="text-xs text-gray-500 mt-1">Eat the hottest wings you can find</div>
                 </label>
 
             </div>
         </fieldset>
 
-        <!-- Section 2: 8 reflective questions -->
-        <fieldset>
-            <legend class="text-xl font-bold text-brand-blue mb-1">2. 8 Questions *</legend>
-            <p class="text-sm text-gray-500 mb-5">Answer honestly. These reflect on mental health — there are no wrong answers.</p>
-            <div class="space-y-5">
+        <!-- Section 2: 8 reflective questions, answered one at a time (see stepper script). -->
+        <fieldset id="questions">
+            <legend class="text-xl font-bold text-brand-navy mb-1">2. The 8 Questions *</legend>
+            <p class="text-sm text-gray-500 mb-5">Answer honestly — there are no wrong answers. One at a time.</p>
 
-                {% set questions = [
-                    "How are you really doing today, honestly — not the answer you'd give a colleague?",
-                    "When did you last check in on a friend who might be struggling?",
-                    "What does 'asking for help' mean to you, and does it feel easy or hard?",
-                    "What's one thing you do when you feel overwhelmed — does it actually help?",
-                    "Who in your life would you call at 3am if you needed to talk?",
-                    "What would you say to a friend who told you they weren't okay?",
-                    "Have you ever dismissed how you were feeling because you thought others had it worse?",
-                    "What's one small thing you can commit to for your mental health this week?"
-                ] %}
+            {% set questions = [
+                "How are you really doing today, honestly — not the answer you'd give a colleague?",
+                "When did you last check in on a friend who might be struggling?",
+                "What does 'asking for help' mean to you, and does it feel easy or hard?",
+                "What's one thing you do when you feel overwhelmed — does it actually help?",
+                "Who in your life would you call at 3am if you needed to talk?",
+                "What would you say to a friend who told you they weren't okay?",
+                "Have you ever dismissed how you were feeling because you thought others had it worse?",
+                "What's one small thing you can commit to for your mental health this week?"
+            ] %}
 
+            <!-- 8-segment progress bar (reinforces the brand "8") -->
+            <div class="flex gap-1.5 mb-6" id="q-dots">
                 {% for q in questions %}
-                <div>
-                    <!-- answers[0], answers[1], … maps to the list[str] the API expects -->
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Q{{ loop.index }}. {{ q }}
-                    </label>
+                <div class="q-dot h-1.5 flex-1 rounded-full bg-gray-200 transition-colors duration-300"></div>
+                {% endfor %}
+            </div>
+
+            <div id="q-cards">
+                {% for q in questions %}
+                <!-- answers[0..7] maps to the list[str] the API expects. No `required`: the stepper -->
+                <!-- disables Next until each is filled, so all 8 are answered before submit is reachable. -->
+                <div class="q-card {% if not loop.first %}hidden{% endif %}" data-step="{{ loop.index0 }}">
+                    <p class="text-sm font-bold text-brand-sky mb-1 q-counter">Question {{ loop.index }} of 8</p>
+                    <label class="block text-lg font-semibold text-brand-navy mb-3 leading-snug">{{ q }}</label>
                     <textarea
                         name="answers"
-                        rows="2"
-                        required
-                        placeholder="Your answer..."
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
+                        rows="4"
+                        placeholder="Take your time…"
+                        class="q-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-teal resize-none"></textarea>
                 </div>
                 {% endfor %}
+            </div>
 
+            <!-- Stepper navigation -->
+            <div id="q-nav" class="flex items-center justify-between mt-5">
+                <button type="button" id="q-back"
+                        class="text-gray-500 font-medium px-4 py-2 rounded-full hover:bg-gray-100 transition-colors invisible">
+                    &larr; Back
+                </button>
+                <button type="button" id="q-showall"
+                        class="text-xs text-gray-400 underline hover:text-brand-teal">
+                    Show all questions
+                </button>
+                <button type="button" id="q-next"
+                        class="bg-brand-coral hover:bg-brand-gold text-white font-semibold px-6 py-2 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    Next &rarr;
+                </button>
             </div>
         </fieldset>
 
-        <!-- Section 3: Your details (optional) -->
-        <fieldset>
-            <legend class="text-xl font-bold text-brand-blue mb-4">3. Your Details (Optional)</legend>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input type="text" name="name" placeholder="First name or alias"
-                           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                    <input type="number" name="age" placeholder="e.g. 24" min="13" max="120"
-                           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
-                </div>
-            </div>
-        </fieldset>
+        <!-- Everything below is revealed once the 8 questions are answered. -->
+        <div id="more" hidden class="space-y-10">
 
-        <!-- Section 4: Nominate someone -->
-        <fieldset>
-            <legend class="text-xl font-bold text-brand-blue mb-4">4. Nominate Someone *</legend>
-            <p class="text-sm text-gray-500 mb-4">They'll get an email — they have 24 hours to accept the challenge.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Their Name *</label>
-                    <input type="text" name="nominee_name" required placeholder="Friend's name"
-                           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+            <!-- Section 3: Your details (optional) -->
+            <fieldset>
+                <legend class="text-xl font-bold text-brand-navy mb-4">3. Your Details (Optional)</legend>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input type="text" name="name" placeholder="First name or alias"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                        <input type="number" name="age" placeholder="e.g. 24" min="13" max="120"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Their Email *</label>
-                    <input type="email" name="nominee_email" required placeholder="friend@example.com"
-                           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
-                </div>
-            </div>
-        </fieldset>
+            </fieldset>
 
-        <!-- Submit -->
-        <div class="flex items-center gap-4">
-            <button type="submit"
-                    class="bg-brand-teal hover:bg-teal-600 text-white font-bold px-10 py-3 rounded-full text-lg transition-colors duration-200 shadow">
-                Submit Challenge
-            </button>
-            <!-- Spinner shown while HTMX request is in flight (htmx-indicator class controls visibility) -->
-            <span id="spinner" class="htmx-indicator text-brand-teal text-sm font-medium">Submitting...</span>
+            <!-- Section 4: Nominate someone -->
+            <fieldset>
+                <legend class="text-xl font-bold text-brand-navy mb-4">4. Nominate Someone *</legend>
+                <p class="text-sm text-gray-500 mb-4">They'll get an email — they have 24 hours to accept the challenge.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Their Name *</label>
+                        <input type="text" name="nominee_name" required placeholder="Friend's name"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Their Email *</label>
+                        <input type="email" name="nominee_email" required placeholder="friend@example.com"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Submit -->
+            <div class="flex items-center gap-4">
+                <button type="submit"
+                        class="bg-brand-coral hover:bg-brand-gold text-white font-bold px-10 py-3 rounded-full text-lg transition-all duration-200 shadow hover:shadow-lg hover:-translate-y-0.5">
+                    Submit Challenge
+                </button>
+                <span id="spinner" class="htmx-indicator text-brand-navy text-sm font-medium">Submitting...</span>
+            </div>
         </div>
 
     </form>
@@ -143,5 +169,94 @@
     .htmx-request .htmx-indicator { display: inline; }
     .htmx-request.htmx-indicator { display: inline; }
 </style>
+
+<!-- One-question-at-a-time stepper for the 8 questions. -->
+<script>
+(function () {
+    const form = document.getElementById('challenge-form');
+    if (!form) return;
+
+    const cards  = Array.from(form.querySelectorAll('.q-card'));
+    const inputs = Array.from(form.querySelectorAll('.q-input'));
+    const dots   = Array.from(form.querySelectorAll('.q-dot'));
+    const back   = document.getElementById('q-back');
+    const next   = document.getElementById('q-next');
+    const nav     = document.getElementById('q-nav');
+    const dotsBar = document.getElementById('q-dots');
+    const more   = document.getElementById('more');
+    const total  = cards.length;
+
+    let current = 0;
+    let showAll = false;
+
+    function updateNext() {
+        next.disabled = !inputs[current].value.trim();
+    }
+
+    function render() {
+        cards.forEach((c, idx) => c.classList.toggle('hidden', idx !== current));
+        dots.forEach((d, idx) => {
+            d.classList.toggle('bg-brand-sky', idx <= current);
+            d.classList.toggle('bg-gray-200', idx > current);
+        });
+        back.classList.toggle('invisible', current === 0);
+        next.innerHTML = (current === total - 1) ? 'Done &check;' : 'Next &rarr;';
+        updateNext();
+        const ta = inputs[current];
+        if (ta) setTimeout(() => ta.focus(), 0);
+    }
+
+    function revealMore() {
+        if (!more) return;
+        more.hidden = false;
+        more.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    inputs.forEach((ta, idx) => {
+        ta.addEventListener('input', () => { if (idx === current) updateNext(); });
+        // Enter advances; Shift+Enter inserts a newline.
+        ta.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !showAll) {
+                e.preventDefault();
+                if (!next.disabled) next.click();
+            }
+        });
+    });
+
+    next.addEventListener('click', () => {
+        if (!inputs[current].value.trim()) return;
+        if (current < total - 1) { current++; render(); }
+        else { revealMore(); }
+    });
+
+    back.addEventListener('click', () => {
+        if (current > 0) { current--; render(); }
+    });
+
+    document.getElementById('q-showall').addEventListener('click', () => {
+        showAll = true;
+        cards.forEach(c => c.classList.remove('hidden'));
+        nav.classList.add('hidden');
+        dotsBar.classList.add('hidden');
+        revealMore();
+    });
+
+    // Backstop validation: block submit (capture phase, before HTMX) if any answer is blank.
+    form.addEventListener('submit', (e) => {
+        const firstEmpty = inputs.findIndex(t => !t.value.trim());
+        if (firstEmpty !== -1) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!showAll) { current = firstEmpty; render(); }
+            const ta = inputs[firstEmpty];
+            ta.focus();
+            ta.classList.add('ring-2', 'ring-brand-coral');
+            ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, true);
+
+    render();
+})();
+</script>
 
 {% endblock %}

@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}EightMinute{% endblock %}</title>
 
+    <!-- Elephant favicon (nods to "Elephant in the Room") -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%98%3C/text%3E%3C/svg%3E">
+
     <!-- Tailwind CSS via CDN (Play CDN — dev only, swap for build in prod) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- HTMX — enables server-driven partial page updates without writing JS -->
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <!-- idiomorph "morph" extension — refreshes the live feed by morphing the DOM in place,
+         preserving in-progress typing, focus and scroll instead of replacing it wholesale. -->
+    <script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph-ext.min.js"></script>
+    <!-- Chart.js — renders the live cumulative-growth chart on the homepage. -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <!-- canvas-confetti — celebration burst when a challenge is submitted. -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -17,30 +27,81 @@
                 extend: {
                     colors: {
                         brand: {
-                            blue: '#1e3a5f',
-                            teal: '#0d9488',
-                            light: '#f0fdfa',
+                            blue: '#1cade4',   /* bright light blue — dominant surfaces (hero, footer) */
+                            navy: '#ff5a5f',   /* (legacy alias) now points to vibrant coral */
+                            coral: '#ff5a5f',  /* vibrant coral — buttons, headings, accents (white text) */
+                            amber: '#f9eb33',  /* yellow highlight (on coloured backgrounds) */
+                            gold: '#ec4d52',   /* deeper coral — button hover */
+                            teal: '#62b4b8',   /* cyan — calm secondary accent */
+                            sky: '#1cade4',    /* bright light-blue accent (same as blue) */
+                            ink: '#050708',    /* near-black text */
+                            light: '#eaf4fb',  /* pale blue section bg */
                         }
+                    },
+                    keyframes: {
+                        fadein: {
+                            '0%': { opacity: '0', transform: 'translateY(4px)' },
+                            '100%': { opacity: '1', transform: 'none' },
+                        },
+                        pop: {
+                            '0%':   { opacity: '0', transform: 'scale(0.3)' },
+                            '60%':  { opacity: '1', transform: 'scale(1.15)' },
+                            '100%': { transform: 'scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%':      { transform: 'translateY(-10px)' },
+                        },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%':      { transform: 'rotate(-8deg)' },
+                            '75%':      { transform: 'rotate(8deg)' },
+                        },
+                    },
+                    animation: {
+                        fadein: 'fadein 0.25s ease',
+                        pop: 'pop 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) both',
+                        float: 'float 4s ease-in-out infinite',
+                        wiggle: 'wiggle 0.5s ease-in-out',
                     }
                 }
             }
         }
     </script>
+
+    <!-- Persist which posts this visitor has liked so the heart stays filled across
+         page loads and live-feed refreshes (no auth / no per-user accounts). -->
+    <script>
+        window.EM = {
+            liked: new Set(JSON.parse(localStorage.getItem('em_liked') || '[]')),
+            save() { localStorage.setItem('em_liked', JSON.stringify([...this.liked])); },
+            markLiked(id) { this.liked.add(Number(id)); this.save(); this.applyLikes(); },
+            applyLikes() {
+                document.querySelectorAll('.like-btn').forEach(function (btn) {
+                    if (!window.EM.liked.has(Number(btn.dataset.subId))) return;
+                    var el = btn.querySelector('.like-elephant');
+                    if (el) {
+                        el.classList.remove('grayscale', 'opacity-50');
+                        el.classList.add('scale-110');
+                    }
+                    btn.classList.add('text-brand-coral');
+                    btn.classList.remove('text-gray-500');
+                });
+            }
+        };
+        // Record a like globally (on body) so it survives the outerHTML button swap,
+        // then immediately repaint hearts. afterSettle re-applies after every feed morph.
+        document.addEventListener('DOMContentLoaded', function () { window.EM.applyLikes(); });
+        document.body.addEventListener('htmx:afterSettle', function () { window.EM.applyLikes(); });
+        document.body.addEventListener('htmx:afterRequest', function (e) {
+            var cfg = e.detail && e.detail.requestConfig;
+            if (!cfg || !e.detail.successful) return;
+            var m = cfg.path && cfg.path.match(/\/partials\/submissions\/(\d+)\/like$/);
+            if (m) window.EM.markLiked(m[1]);
+        });
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-
-    <!-- Navigation -->
-    <nav class="bg-brand-blue text-white shadow-lg">
-        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="/" class="text-2xl font-bold tracking-tight">
-                Eight<span class="text-brand-teal">Minute</span>
-            </a>
-            <a href="/challenge"
-               class="bg-brand-teal hover:bg-teal-600 text-white font-semibold px-5 py-2 rounded-full transition-colors duration-200">
-                Take the Challenge
-            </a>
-        </div>
-    </nav>
 
     <!-- Page content injected here by child templates -->
     <main class="flex-1">
@@ -48,9 +109,11 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-brand-blue text-gray-300 text-sm text-center py-6 mt-12">
+    <footer class="bg-brand-blue text-white/90 text-sm text-center py-8 mt-12">
+        <div class="text-3xl mb-2">🐘</div>
         <p>EightMinute &mdash; A mental health awareness challenge.</p>
-        <p class="mt-1 text-gray-400">In partnership with Elephant in the Room charity.</p>
+        <p class="mt-1 text-white/80">In partnership with <span class="text-brand-navy font-semibold">Elephant in the Room</span> charity.</p>
+        <p class="mt-3 text-white/70 text-xs max-w-md mx-auto italic">Let's talk about the elephant in the room — because it's okay not to be okay.</p>
     </footer>
 
 </body>

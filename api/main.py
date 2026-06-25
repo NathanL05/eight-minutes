@@ -1,13 +1,31 @@
+from datetime import datetime, timezone
+
 import uvicorn
 from database import get_db
 from fastapi import FastAPI, Depends, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import Response
 from routers import submissions, nominations
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+
+def _time_ago(dt):
+    """Render a TIMESTAMPTZ as a friendly relative label (e.g. '5m ago')."""
+    if dt is None:
+        return ""
+    seconds = (datetime.now(timezone.utc) - dt).total_seconds()
+    if seconds < 60:
+        return "just now"
+    if seconds < 3600:
+        return f"{int(seconds // 60)}m ago"
+    if seconds < 86400:
+        return f"{int(seconds // 3600)}h ago"
+    return f"{int(seconds // 86400)}d ago"
 
 
 @app.get("/health")
@@ -28,6 +46,33 @@ def get_stats(conn=Depends(get_db)):
     return stats
 
 
+@app.get("/stats/timeseries")
+def get_stats_timeseries(conn=Depends(get_db)):
+    """Cumulative participant count bucketed by day, for the homepage growth chart.
+
+    Bucketing by day (rather than one point per submission) means an accelerating
+    sign-up rate actually shows up as an upward curve, not a straight line.
+    """
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT created_at::date AS day, COUNT(*)
+        FROM submissions
+        GROUP BY day
+        ORDER BY day ASC
+        """
+    )
+    rows = cur.fetchall()
+    labels = []
+    data = []
+    running = 0
+    for day, count in rows:
+        running += count
+        labels.append(day.strftime("%b %d") if day else "")
+        data.append(running)
+    return {"labels": labels, "data": data}
+
+
 @app.get("/partials/stats")
 def get_partial_stats(request: Request, conn=Depends(get_db)):
     cur = conn.cursor()
@@ -43,19 +88,119 @@ def get_partial_stats(request: Request, conn=Depends(get_db)):
     )
 
 
+PAGE_SIZE = 5
+
+
 @app.get("/partials/feed")
-def get_partial_feed(request: Request, conn=Depends(get_db)):
+def get_partial_feed(
+    request: Request,
+    offset: int = 0,
+    limit: int = PAGE_SIZE,
+    more: int = 0,
+    conn=Depends(get_db),
+):
+    limit = max(1, min(limit, 50))
+    offset = max(0, offset)
     cur = conn.cursor()
-    cur.execute("""
-        SELECT s.name, c.name, s.created_at
+    cur.execute("SELECT COUNT(*) FROM submissions")
+    total = cur.fetchone()[0]
+    cur.execute(
+        """
+        SELECT s.id, s.name, c.name, s.created_at, s.likes
         FROM submissions s LEFT JOIN challenges c ON s.challenge_id = c.id
         ORDER BY s.created_at DESC
-        LIMIT 10
-        """)
+        OFFSET %s LIMIT %s
+        """,
+        (offset, limit),
+    )
     rows = cur.fetchall()
-    submissions = [{"name": r[0], "challenge": r[1], "created_at": r[2]} for r in rows]
+    submissions = [
+        {
+            "id": r[0],
+            "name": r[1],
+            "challenge": r[2],
+            "created_at": r[3],
+            "created_label": _time_ago(r[3]),
+            "likes": r[4],
+            "comments": [],
+        }
+        for r in rows
+    ]
+
+    # Attach comments for the visible submissions in a single query.
+    by_id = {s["id"]: s for s in submissions}
+    if by_id:
+        cur.execute(
+            """
+            SELECT submission_id, author, body, created_at
+            FROM comments
+            WHERE submission_id = ANY(%s)
+            ORDER BY created_at ASC
+            """,
+            (list(by_id.keys()),),
+        )
+        for sub_id, author, body, created_at in cur.fetchall():
+            by_id[sub_id]["comments"].append(
+                {"author": author, "body": body, "created_label": _time_ago(created_at)}
+            )
+
+    next_offset = offset + len(rows)
+    template = "partials/feed_more.html" if more else "partials/feed.html"
     return templates.TemplateResponse(
-        request, "partials/feed.html", {"submissions": submissions}
+        request,
+        template,
+        {
+            "submissions": submissions,
+            "has_more": next_offset < total,
+            "next_offset": next_offset,
+            "limit": limit,
+        },
+    )
+
+
+@app.post("/partials/submissions/{submission_id}/like")
+def like_submission(submission_id: int, request: Request, conn=Depends(get_db)):
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE submissions SET likes = likes + 1 WHERE id = %s RETURNING likes",
+        (submission_id,),
+    )
+    row = cur.fetchone()
+    if row is None:
+        conn.rollback()
+        return Response(status_code=404)
+    conn.commit()
+    return templates.TemplateResponse(
+        request,
+        "partials/like_button.html",
+        {"submission_id": submission_id, "likes": row[0]},
+    )
+
+
+@app.post("/partials/submissions/{submission_id}/comment")
+async def comment_submission(
+    submission_id: int, request: Request, conn=Depends(get_db)
+):
+    form = await request.form()
+    body = (form.get("body") or "").strip()[:280]
+    author = (form.get("author") or "").strip()[:40] or "Anonymous"
+    if not body:
+        return Response(status_code=204)
+
+    cur = conn.cursor()
+    cur.execute(
+        """
+        INSERT INTO comments (submission_id, author, body)
+        VALUES (%s, %s, %s)
+        RETURNING author, body, created_at
+        """,
+        (submission_id, author, body),
+    )
+    row = cur.fetchone()
+    conn.commit()
+    comment = {"author": row[0], "body": row[1], "created_label": _time_ago(row[2])}
+    return templates.TemplateResponse(
+        request, "partials/comment.html", {"comment": comment}
     )
 
 
@@ -65,8 +210,15 @@ def get_metrics():
 
 
 @app.get("/")
-def home_page(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+def home_page(request: Request, conn=Depends(get_db)):
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM submissions")
+    total = cur.fetchone()[0]
+    return templates.TemplateResponse(
+        request,
+        "index.html",
+        {"page_size": PAGE_SIZE, "show_load_more": total > PAGE_SIZE},
+    )
 
 
 @app.get("/challenge")

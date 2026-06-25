@@ -1,0 +1,18 @@
+{#
+  "Support" button (elephant) for a single submission.
+  Rendered inline by feed_cards.html and returned standalone by POST .../like.
+  Context: submission_id, likes
+  Liked state (full-colour elephant) is applied client-side from localStorage — see EM.applyLikes.
+  Unliked: greyscale + dimmed. Hover previews full colour. Liked: full colour, slightly larger.
+#}
+<button id="like-{{ submission_id }}"
+        data-sub-id="{{ submission_id }}"
+        aria-label="Send support"
+        title="Send support"
+        hx-post="/partials/submissions/{{ submission_id }}/like"
+        hx-swap="outerHTML"
+        class="like-btn group flex items-center gap-1.5 text-gray-500 transition-colors">
+    <span class="like-elephant text-xl leading-none grayscale opacity-50 transition-all duration-150
+                 group-hover:grayscale-0 group-hover:opacity-100 group-active:scale-125">🐘</span>
+    <span class="like-count font-medium tabular-nums">{{ likes }}</span>
+</button>

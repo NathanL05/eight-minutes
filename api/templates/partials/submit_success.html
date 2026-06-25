@@ -1,16 +1,18 @@
 {#
   Partial returned by POST /submit/form on success.
   HTMX swaps this into #form-container, replacing the form.
-  `submission_id` is the new row's id from the DB.
-  `challenge` is the challenge name the user picked.
-  `nominee_name` is who they nominated.
+  HTMX executes the inline <script>, which fires the confetti celebration.
+  `submission_id` — new row id, `challenge` — picked challenge, `nominee_name` — who they nominated.
 #}
 
 <div class="max-w-2xl mx-auto px-4 py-16 text-center">
 
-    <div class="text-7xl mb-6">🎉</div>
+    <!-- Popping, then gently floating elephant -->
+    <div class="text-8xl mb-6 inline-block animate-pop">
+        <span class="inline-block animate-float">🐘</span>
+    </div>
 
-    <h2 class="text-3xl font-extrabold text-brand-blue mb-3">
+    <h2 class="text-3xl font-extrabold text-brand-navy mb-3">
         Challenge Submitted!
     </h2>
 
@@ -26,11 +28,37 @@
     </p>
     {% endif %}
 
+    <p class="text-brand-navy font-medium mb-6">You just helped start the conversation. 🐘</p>
+
     <p class="text-sm text-gray-400 mb-8">Submission #{{ submission_id }}</p>
 
     <a href="/"
-       class="inline-block bg-brand-teal hover:bg-teal-600 text-white font-bold px-8 py-3 rounded-full transition-colors duration-200">
+       class="inline-block bg-brand-coral hover:bg-brand-gold text-white font-bold px-8 py-3 rounded-full transition-all duration-200 shadow hover:shadow-lg hover:-translate-y-0.5">
         Back to Dashboard
     </a>
 
 </div>
+
+<script>
+    (function () {
+        if (typeof confetti !== 'function') return;
+        var colors = ['#f9eb33', '#1cade4', '#62b4b8', '#ff5a5f'];
+
+        // Elephant-shaped confetti pieces (falls back gracefully on older browsers).
+        var shapes;
+        try {
+            shapes = [confetti.shapeFromText({ text: '🐘', scalar: 2.2 }), 'circle', 'square'];
+        } catch (e) {
+            shapes = ['circle', 'square'];
+        }
+
+        // Opening burst from the center.
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: colors, shapes: shapes, scalar: 1.2 });
+
+        // Two side cannons for a fuller celebration.
+        setTimeout(function () {
+            confetti({ particleCount: 60, angle: 60, spread: 70, origin: { x: 0 }, colors: colors });
+            confetti({ particleCount: 60, angle: 120, spread: 70, origin: { x: 1 }, colors: colors });
+        }, 200);
+    })();
+</script>
